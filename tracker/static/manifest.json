@@ -1,0 +1,15 @@
+{
+  "name": "Kunlik Reja Tracker",
+  "short_name": "Reja",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/9322/9322127.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

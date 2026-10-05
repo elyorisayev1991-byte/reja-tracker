@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    {% load static %}
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" opacity="1" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/9322/9322127.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kunlik Reja & Odatlar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex justify-center p-4">
+
+    <div class="w-full max-w-md space-y-6">
+        
+        <!-- Sarlavha va Sana -->
+        <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+            <h1 class="text-xl font-bold text-gray-200">Kun tartibi nazorati</h1>
+            <span class="text-sm bg-gray-800 px-3 py-1 rounded-full text-gray-400">
+                {{ routine.date|date:"Y-m-d" }}
+            </span>
+        </div>
+
+        <!-- Dynamic Color Natija Kartochkasi -->
+        <div class="p-6 rounded-2xl transition-all duration-500 text-center border {{ routine.status_color_class }}">
+            <h2 class="text-sm uppercase tracking-wider opacity-80">Bugungi natija</h2>
+            <div class="text-5xl font-black my-2">
+                {{ routine.completion_percentage }}%
+            </div>
+            <p class="text-xs opacity-90">
+                {% if routine.completion_percentage == 100 %}
+                    Super! Barcha asosiy odatlar bajarildi! 🎯
+                {% elif routine.completion_percentage >= 60 %}
+                    Yaxshi natija! Intizomni saqlang. 💪
+                {% else %}
+                    Harakatni to'xtatmang, ertaga yaxshiroq bo'ladi! 🌅
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- 5 ta Asosiy Odat (Checklist) -->
+        <form method="POST" class="space-y-3 bg-gray-800/50 p-4 rounded-xl border border-gray-800">
+            {% csrf_token %}
+            <h3 class="text-sm font-semibold text-gray-400 mb-2">🎯 Eng muhim 5 ta odat</h3>
+
+            <label class="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 border border-gray-700/50">
+                <input type="checkbox" name="woke_up_early" class="w-5 h-5 accent-emerald-500 rounded" {% if routine.woke_up_early %}checked{% endif %} onchange="this.form.submit()">
+                <span class="text-sm">05:00 da turdim</span>
+            </label>
+
+            <label class="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 border border-gray-700/50">
+                <input type="checkbox" name="exercise_done" class="w-5 h-5 accent-emerald-500 rounded" {% if routine.exercise_done %}checked{% endif %} onchange="this.form.submit()">
+                <span class="text-sm">🏃 20-25 min mashq qildim</span>
+            </label>
+
+            <label class="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 border border-gray-700/50">
+                <input type="checkbox" name="tax_code_read" class="w-5 h-5 accent-emerald-500 rounded" {% if routine.tax_code_read %}checked{% endif %} onchange="this.form.submit()">
+                <span class="text-sm">📖 Soliq kodeksi (kamida 30 daqiqa)</span>
+            </label>
+
+            <label class="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 border border-gray-700/50">
+                <input type="checkbox" name="top_3_completed" class="w-5 h-5 accent-emerald-500 rounded" {% if routine.top_3_completed %}checked{% endif %} onchange="this.form.submit()">
+                <span class="text-sm">📝 Bugungi 3 ta muhim vazifa bajarildi</span>
+            </label>
+
+            <label class="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-750 border border-gray-700/50">
+                <input type="checkbox" name="time_with_abdulloh" class="w-5 h-5 accent-emerald-500 rounded" {% if routine.time_with_abdulloh %}checked{% endif %} onchange="this.form.submit()">
+                <span class="text-sm">👨‍‍👦 Abdulloh bilan vaqt (30-45 min)</span>
+            </label>
+        </form>
+
+        <!-- Kunlik xulosa -->
+        <div class="bg-gray-800/30 p-4 rounded-xl border border-gray-800">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase mb-1">Eslatma</h3>
+            <p class="text-xs text-gray-400 italic">
+                "Reja mukammal bajarilishi shart emas. Asosiysi — intizom va uzluksizlik."
+            </p>
+        </div>
+<!-- Oylik Heatmap (Kalendar) -->
+<div class="bg-gray-800/40 p-4 rounded-xl border border-gray-800 space-y-3">
+    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex justify-between items-center">
+        <span>🗓 Oxirgi 30 kunlik natija</span>
+        <span class="text-[10px] text-gray-500">Heatmap</span>
+    </h3>
+
+    <div class="grid grid-cols-6 gap-2 pt-1">
+        {% for item in monthly_data %}
+            <div class="flex flex-col items-center justify-center p-2 rounded-lg border border-gray-700/30 text-center transition-all duration-300 {{ item.bg_color }} {% if item.is_today %}ring-2 ring-emerald-400 scale-105{% endif %}" title="{{ item.date }}: {{ item.pct }}%">
+                <span class="text-[10px] opacity-75">{{ item.date|date:"d-b" }}</span>
+                <span class="text-xs font-extrabold mt-0.5">{{ item.pct }}%</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Legenda (Ranglar izohi) -->
+    <div class="flex justify-between items-center text-[10px] text-gray-400 pt-2 border-t border-gray-800">
+        <span>Xira: <span class="text-gray-500">0-40%</span></span>
+        <span>O'rta: <span class="text-amber-400">40-70%</span></span>
+        <span>A'lo: <span class="text-green-400">75-100%</span></span>
+    </div>
+</div>
+    </div>
+
+</body>
+</html>
+<script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js');
+    }
+  </script>
